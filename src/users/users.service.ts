@@ -6,6 +6,10 @@ import {
 } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
+import { UsersCreateDto } from './dto/users-create.dto';
+import { LoginDto } from './dto/login.dto';
+import { UsersUpdateDto } from './dto/users-update.dto';
+import { userInfo } from 'os';
 var jwt = require('jsonwebtoken');
 var md5 = require('md5');
 
@@ -14,21 +18,26 @@ export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   // create
-  async createUser(data: {
-    name: string;
-    email: string;
-    password: string;
-    role: Role;
-  }) {
-    let passwordHash = md5(data.password);
+  async createUser(createDto: UsersCreateDto) {
+    let passwordHash = md5(createDto.password);
     console.log(passwordHash);
+
+    let existingUser = await this.prisma.user.findUnique({
+      where: {
+        email: createDto.email,
+      },
+    });
+
+    if (existingUser)
+      throw new HttpException('user is already exist', HttpStatus.CONFLICT);
+
     try {
       let createUser = await this.prisma.user.create({
         data: {
-          name: data.name,
-          email: data.email,
+          name: createDto.name,
+          email: createDto.email,
           password: passwordHash,
-          role: data.role,
+          role: createDto.role,
         },
       });
     } catch (error) {
@@ -42,15 +51,15 @@ export class UsersService {
   }
 
   // create user login
-  async loginUser(data: { email: string; password: string }) {
+  async loginUser(loginDto: LoginDto) {
     let jwtToken;
     const getUserByEmail = await this.prisma.user.findUnique({
       where: {
-        email: data.email,
+        email: loginDto.email,
       },
     });
 
-    let hashpassword = await md5(data.password);
+    let hashpassword = await md5(loginDto.password);
 
     if (!getUserByEmail) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
@@ -77,13 +86,64 @@ export class UsersService {
     return {
       massage: 'User login sucesss',
       statusCode: 200,
-      data: token,
+      data: {
+        token: jwtToken,
+        name: getUserByEmail.name,
+        email: getUserByEmail.email,
+        role: getUserByEmail.role,
+      },
     };
   }
 
   //   get user
-  getAll() {
-    return this.prisma.user.findMany();
+  async getAllUsers(page: number = 1, limit: number = 10, search?: string) {
+    const skip = (page - 1) * limit;
+
+    const whereCondition: any = {
+      NOT: {
+        role: 'ADMIN',
+      },
+    };
+
+    // Optional search filter
+    if (search) {
+      whereCondition.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    const [users, total] = await this.prisma.$transaction([
+      this.prisma.user.findMany({
+        where: whereCondition,
+        skip,
+        take: limit,
+        orderBy: {
+          id: 'desc',
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+        },
+      }),
+      this.prisma.user.count({
+        where: whereCondition,
+      }),
+    ]);
+
+    return {
+      statusCode: 200,
+      message: 'Users fetched successfully',
+      data: users,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   //   get user by id
@@ -97,15 +157,12 @@ export class UsersService {
     return user;
   }
 
-  async updateById(
-    id: number,
-    data: { name?: string; email?: string; password?: string; role?: Role },
-  ) {
+  async updateById(id: number, usersUpdateDto: UsersUpdateDto) {
     try {
-      let updateData = { ...data };
+      let updateData = { ...usersUpdateDto };
 
-      if (data.password) {
-        updateData.password = md5(data.password);
+      if (usersUpdateDto.password) {
+        updateData.password = md5(usersUpdateDto.password);
       }
 
       const user = await this.prisma.user.update({

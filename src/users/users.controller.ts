@@ -5,47 +5,55 @@ import {
   Get,
   UseGuards,
   SetMetadata,
-  Param,Put,
-  Delete
+  Param,
+  Put,
+  Delete,
+  Query,
+  DefaultValuePipe,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { Role } from '@prisma/client';
 import { RolesGuard } from 'src/guards/roles/roles.guard';
 import { AuthGuard } from 'src/auth/auth.guards';
+import { UsersCreateDto } from './dto/users-create.dto';
+import { LoginDto } from './dto/login.dto';
+import { UsersUpdateDto } from './dto/users-update.dto';
 
 @Controller('users')
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
-  // user post route
   @UseGuards(AuthGuard, RolesGuard)
   @SetMetadata('role', [Role.ADMIN])
   @Post('create')
-  async create(
-    @Body() body: { name: string; email: string; password: string; role: Role },
-  ) {
-    console.log('Received body:', body);
-    return this.usersService.createUser(body);
+  async create(@Body() createDto: UsersCreateDto) {
+    return this.usersService.createUser(createDto);
   }
 
   // create login route
   @Post('login')
-  login(@Body() data: { email: string; password: string }) {
-    return this.usersService.loginUser(data);
+  async login(@Body() loginDto: LoginDto) {
+    return this.usersService.loginUser(loginDto);
   }
 
   // get all data
   @Get()
   @UseGuards(AuthGuard, RolesGuard)
   @SetMetadata('role', [Role.ADMIN])
-  getAll() {
-    return this.usersService.getAll();
+  @Get()
+  async getAllUsers(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query('search') search?: string,
+  ) {
+    return this.usersService.getAllUsers(page, limit, search);
   }
 
   // get data by id
   @Get(':id')
   @UseGuards(AuthGuard, RolesGuard)
-  @SetMetadata('role', [Role.ADMIN])
+  @SetMetadata('role', [Role.ADMIN, Role.HR])
   getById(@Param('id') id: string) {
     return this.usersService.getUserById(Number(id));
   }
@@ -53,10 +61,9 @@ export class UsersController {
   @Put(':id')
   @UseGuards(AuthGuard, RolesGuard)
   @SetMetadata('role', [Role.ADMIN])
-  updateUser(@Param('id') id: string, @Body() body: any) {
-    return this.usersService.updateById(Number(id), body);
+  updateUser(@Param('id') id: string, @Body() usersUpdateDto:UsersUpdateDto) {
+    return this.usersService.updateById(Number(id), usersUpdateDto);
   }
-
 
   @Delete(':id')
   @UseGuards(AuthGuard, RolesGuard)
@@ -64,5 +71,4 @@ export class UsersController {
   delete(@Param('id') id: string) {
     return this.usersService.deleteById(Number(id));
   }
-
 }
