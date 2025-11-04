@@ -11,10 +11,11 @@ import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-  constructor(private jwtService: JwtService,private reflector: Reflector) {}
-  async canActivate(
-    context: ExecutionContext,
-  ): Promise<boolean> {
+  constructor(
+    private jwtService: JwtService,
+    private reflector: Reflector,
+  ) {}
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
 
     const requiredRoles = this.reflector.get<string[]>(
@@ -35,16 +36,16 @@ export class RolesGuard implements CanActivate {
     }
 
     try {
-
-      const user = await this.jwtService.verifyAsync(token, {secret: process.env.jwtPrivateKey,})
+      const user = await this.jwtService.verifyAsync(token, {
+        secret: process.env.jwtPrivateKey,
+      });
 
       const userRole = user.role;
 
-      return requiredRoles.includes(userRole)
-      
+      return requiredRoles.includes(userRole);
     } catch (error) {
-      console.log(error)
-      throw new UnauthorizedException("Invalid Token")
+      console.log(error);
+      throw new UnauthorizedException('Invalid Token');
     }
   }
 }

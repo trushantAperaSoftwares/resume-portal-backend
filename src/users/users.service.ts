@@ -84,7 +84,7 @@ export class UsersService {
     }
 
     return {
-      massage: 'User login sucesss',
+      massage: 'User login success',
       statusCode: 200,
       data: {
         token: jwtToken,
@@ -161,10 +161,6 @@ export class UsersService {
     try {
       let updateData = { ...usersUpdateDto };
 
-      if (usersUpdateDto.password) {
-        updateData.password = md5(usersUpdateDto.password);
-      }
-
       const user = await this.prisma.user.update({
         where: { id },
         data: updateData,
@@ -184,21 +180,30 @@ export class UsersService {
     }
   }
 
-  // delete by id
   async deleteById(id: number) {
     try {
+      const existingUser = await this.prisma.user.findUnique({ where: { id } });
+      if (!existingUser) {
+        throw new NotFoundException(`User with ID ${id} not found`);
+      }
+
       const user = await this.prisma.user.delete({
         where: { id },
       });
+
       return {
-        message: 'delete data successfully',
+        message: 'User deleted successfully',
         statusCode: 200,
         data: user,
       };
     } catch (error) {
-      console.log(error, 'error for deleting user');
+      if (error.code === 'P2025') {
+        throw new NotFoundException(`User with ID ${id} not found`);
+      }
+
+      console.error('Error deleting user:', error);
       throw new HttpException(
-        'user fail to delete',
+        'Failed to delete user',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
