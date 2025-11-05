@@ -12,10 +12,6 @@ export class UsersUpdateDto {
     @IsEmail()
     email: string;
 
-    @IsNotEmpty()
-    @IsString()
-    password: string;
-
     @IsEnum(Role)
     role: Role
 }

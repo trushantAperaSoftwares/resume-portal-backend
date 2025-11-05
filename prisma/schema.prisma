@@ -19,7 +19,43 @@ model User {
   name     String
   password String
   role     Role
+  jobs     Job[]
 }
+
+model Job {
+  id             Int       @id @default(autoincrement())
+  title          String
+  description    String
+  client         String?   // optional dropdown
+  skills         String[]  // multi-select dropdown
+  salary         Float
+  internalSalary Float?
+  location       Location
+  type           JobType
+  createdById    Int
+  createdBy      User      @relation(fields: [createdById], references: [id])
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+enum Location {
+  REMOTE
+  MUMBAI
+  DELHI
+  BANGALORE
+  HYDERABAD
+  CHENNAI
+  PUNE
+}
+
+enum JobType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERN
+  FREELANCING
+}
+
 
 enum Role {
   ADMIN
