@@ -84,7 +84,7 @@ export class UsersService {
     }
 
     return {
-      massage: 'User login sucesss',
+      massage: 'User login success',
       statusCode: 200,
       data: {
         token: jwtToken,
@@ -160,11 +160,7 @@ export class UsersService {
   async updateById(id: number, usersUpdateDto: UsersUpdateDto) {
     try {
       let updateData = { ...usersUpdateDto };
-
-      if (usersUpdateDto.password) {
-        updateData.password = md5(usersUpdateDto.password);
-      }
-
+      
       const user = await this.prisma.user.update({
         where: { id },
         data: updateData,
