@@ -4,9 +4,10 @@ import { PrismaService } from './prisma.service'; // <-- path expects src/prisma
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { JobsModule } from './jobs/jobs.module';
+import { CandidateModule } from './candidate/candidate.module';
 
 @Module({
-  imports: [UsersModule, JobsModule],
+  imports: [UsersModule, JobsModule, CandidateModule],
   controllers: [AppController],
   providers: [AppService,],
 })

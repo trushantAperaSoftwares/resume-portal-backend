@@ -60,11 +60,12 @@ export class UsersService {
     });
 
     let hashpassword = await md5(loginDto.password);
+    // console.log("hash",hashpassword);
 
     if (!getUserByEmail) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-
+  console.log("hashpas",getUserByEmail.password );
     if (getUserByEmail.password != hashpassword) {
       throw new HttpException('Password not match', HttpStatus.BAD_REQUEST);
     }
@@ -78,7 +79,7 @@ export class UsersService {
     } catch (error) {
       console.log('error', error);
       throw new HttpException(
-        'Password not match',
+        'INTERNAL SERVER ERROR',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
