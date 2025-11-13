@@ -4,7 +4,7 @@ import { PrismaService } from 'src/prisma.service';
 import { CandidateDto } from './dto/create-candidate.dto';
 import { join } from 'path';
 import { extname } from 'path';
-import { UpdateCandidateDto } from './dto/update-candidate.dto';
+import { NotFoundException } from '@nestjs/common';
 
 @Injectable()
 export class CandidateService {
@@ -40,7 +40,6 @@ export class CandidateService {
         skillsArray = candidateData.skills.map((s) => s.trim());
       }
     }
-
 
     // Create a new candidate record in the database
     const createdCandidate = await this.prisma.candidate.create({
@@ -81,50 +80,29 @@ export class CandidateService {
 
   // Get candidate by ID
   async findOne(id: number) {
+    const candidate = await this.prisma.candidate.findUnique({
+      where: { id },
+    });
+     console.log(candidate)
+     
     return await this.prisma.candidate.findUnique({
       where: { id },
       include: { skills: true },
     });
   }
 
-  // delete by id
-  async remove(id: number){
-    return await this.prisma.candidate.delete({where: {id}})
-  }
+  // delete candidate by id
+  async remove(id: number) {
+    const candidate = await this.prisma.candidate.findUnique({
+      where: { id },
+    });
 
-  // update by id
-   async update(id: number, candidateData: UpdateCandidateDto) {
-    let skillsArray: string[] = [];
-    if (candidateData.skills) {
-      if (typeof candidateData.skills === 'string') {
-        skillsArray = candidateData.skills.split(',').map((s) => s.trim());
-      } else if (Array.isArray(candidateData.skills)) {
-        skillsArray = candidateData.skills.map((s) => s.trim());
-      }
+    if (!candidate) {
+      throw new NotFoundException(`Candidate with ID ${id} not found`);
     }
 
-    return await this.prisma.candidate.update({
+    return await this.prisma.candidate.delete({
       where: { id },
-      data: {
-        firstName: candidateData.firstName,
-        lastName: candidateData.lastName,
-        mobile: candidateData.mobile,
-        email: candidateData.email,
-        yearsOfExperience: Number(candidateData.yearsOfExperience),
-        education: candidateData.education,
-        noticePeriod: Number(candidateData.noticePeriod),
-        skills: skillsArray.length
-          ? {
-              connectOrCreate: skillsArray.map((name) => ({
-                where: { name },
-                create: { name },
-              })),
-            }
-          : undefined,
-      },
-      include: { skills: true },
     });
   }
-
-
 }

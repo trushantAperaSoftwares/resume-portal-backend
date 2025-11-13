@@ -24,6 +24,13 @@ import { UsersUpdateDto } from './dto/users-update.dto';
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
+// create 
+  @Post()
+  async createUser(@Body() createDto: UsersCreateDto) {
+    return this.usersService.createUser(createDto);
+  }
+  
+  // 
   @UseGuards(AuthGuard, RolesGuard)
   @SetMetadata('role', [Role.ADMIN])
   @Post('create')
@@ -41,7 +48,6 @@ export class UsersController {
   @Get()
   @UseGuards(AuthGuard, RolesGuard)
   @SetMetadata('role', [Role.ADMIN])
-  @Get()
   async getAllUsers(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,

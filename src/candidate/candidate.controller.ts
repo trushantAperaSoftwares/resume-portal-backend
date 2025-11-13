@@ -14,7 +14,6 @@ import { diskStorage } from 'multer';
 import type { Express } from 'express'
 import { extname } from 'path';
 import { CandidateDto } from './dto/create-candidate.dto';
-import { UpdateCandidateDto } from './dto/update-candidate.dto';
 
 
 
@@ -56,17 +55,11 @@ export class CandidateController {
     return await this.candidateService.findOne(id)
   }
 
-  // update candidate data
-  @Put(":id")
-  async update(@Param("id", ParseIntPipe) id: number, @Body() updateCandidateData:UpdateCandidateDto){
-    return await this.candidateService.update(id, updateCandidateData)
-  }
 
   // delete candidate by id
   @Delete(":id")
   async deleteById(@Param("id", ParseIntPipe) id: number){
     return await this.candidateService.remove(id)
   }
-
 
 }
