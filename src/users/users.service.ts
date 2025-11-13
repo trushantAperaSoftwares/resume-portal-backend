@@ -17,7 +17,7 @@ var md5 = require('md5');
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  // create
+  // create user
   async createUser(createDto: UsersCreateDto) {
     let passwordHash = md5(createDto.password);
     console.log(passwordHash);
@@ -158,6 +158,7 @@ export class UsersService {
     return user;
   }
 
+  // update user by id
   async updateById(id: number, usersUpdateDto: UsersUpdateDto) {
     try {
       let updateData = { ...usersUpdateDto };

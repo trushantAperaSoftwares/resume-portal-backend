@@ -5,9 +5,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { JobsModule } from './jobs/jobs.module';
 import { CandidateModule } from './candidate/candidate.module';
+import { SkillsModule } from './skills/skills.module';
 
 @Module({
-  imports: [UsersModule, JobsModule, CandidateModule],
+  imports: [UsersModule, JobsModule, CandidateModule, SkillsModule],
   controllers: [AppController],
   providers: [AppService,],
 })
