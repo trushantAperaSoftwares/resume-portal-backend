@@ -12,12 +12,8 @@ import {
   SetMetadata,
   Put,
   Req,
-<<<<<<< HEAD
-  ParseIntPipe, ForbiddenException
-=======
   ParseIntPipe,
   ForbiddenException,
->>>>>>> 4e2483f (guards update)
 } from '@nestjs/common';
 import { SkillsService } from './skills.service';
 import { CreateSkillDto } from './dto/create-skill.dto';
@@ -32,15 +28,10 @@ export class SkillsController {
   constructor(private readonly skillsService: SkillsService) {}
 
   // create skills
-<<<<<<< HEAD
-  @Post('create')
-  @UseGuards(AuthGuard)
-=======
   @UseGuards(AuthGuard)
   @SetMetadata('roles', [Role.ADMIN])
   @UseGuards(RolesGuard)
   @Post('create')
->>>>>>> 4e2483f (guards update)
   async createSkill(@Body() dto: CreateSkillDto, @Req() req: any) {
     const userRole = req.user.role;
 
@@ -64,14 +55,9 @@ export class SkillsController {
   }
 
   // delete skill by id
-<<<<<<< HEAD
-  @UseGuards(AuthGuard, RolesGuard)
-  @SetMetadata('role', [Role.ADMIN])
-=======
   @UseGuards(AuthGuard)
   @SetMetadata('roles', [Role.ADMIN])
   @UseGuards(RolesGuard)
->>>>>>> 4e2483f (guards update)
   @Delete(':id')
   async delete(@Param('id', ParseIntPipe) id: number) {
     return await this.skillsService.deleteSkill(id);
