@@ -24,6 +24,7 @@ import { UsersUpdateDto } from './dto/users-update.dto';
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
+<<<<<<< HEAD
 // create 
   @Post()
   async createUser(@Body() createDto: UsersCreateDto) {
@@ -33,6 +34,14 @@ export class UsersController {
   // 
   @UseGuards(AuthGuard, RolesGuard)
   @SetMetadata('role', [Role.ADMIN])
+=======
+  // @UseGuards(AuthGuard)
+  // @SetMetadata('role', [Role.ADMIN, Role.HR])
+  // @UseGuards(RolesGuard)
+  @UseGuards(AuthGuard)
+  @SetMetadata('roles', [Role.ADMIN])
+  @UseGuards(RolesGuard)
+>>>>>>> 4e2483f (guards update)
   @Post('create')
   async create(@Body() createDto: UsersCreateDto) {
     return this.usersService.createUser(createDto);
@@ -45,9 +54,16 @@ export class UsersController {
   }
 
   // get all data
+<<<<<<< HEAD
   @Get()
   @UseGuards(AuthGuard, RolesGuard)
   @SetMetadata('role', [Role.ADMIN])
+=======
+  @UseGuards(AuthGuard)
+  @SetMetadata('roles', [Role.ADMIN])
+  @UseGuards(RolesGuard)
+  @Get()
+>>>>>>> 4e2483f (guards update)
   async getAllUsers(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
@@ -57,23 +73,27 @@ export class UsersController {
   }
 
   // get data by id
+
+  @UseGuards(AuthGuard)
+  @SetMetadata('roles', [Role.ADMIN])
+  @UseGuards(RolesGuard)
   @Get(':id')
-  @UseGuards(AuthGuard, RolesGuard)
-  @SetMetadata('role', [Role.ADMIN, Role.HR])
   getById(@Param('id') id: string) {
     return this.usersService.getUserById(Number(id));
   }
 
+  @UseGuards(AuthGuard)
+  @SetMetadata('roles', [Role.ADMIN])
+  @UseGuards(RolesGuard)
   @Put(':id')
-  @UseGuards(AuthGuard, RolesGuard)
-  @SetMetadata('role', [Role.ADMIN])
-  updateUser(@Param('id') id: string, @Body() usersUpdateDto:UsersUpdateDto) {
+  updateUser(@Param('id') id: string, @Body() usersUpdateDto: UsersUpdateDto) {
     return this.usersService.updateById(Number(id), usersUpdateDto);
   }
 
+  @UseGuards(AuthGuard)
+  @SetMetadata('roles', [Role.ADMIN])
+  @UseGuards(RolesGuard)
   @Delete(':id')
-  @UseGuards(AuthGuard, RolesGuard)
-  @SetMetadata('role', [Role.ADMIN])
   delete(@Param('id') id: string) {
     return this.usersService.deleteById(Number(id));
   }

@@ -11,12 +11,7 @@ import { RolesGuard } from 'src/guards/roles/roles.guard';
       signOptions: { expiresIn: '1m' },
     }),
   ],
-  providers: [
-    AuthGuard,
-    RolesGuard,
-  ],
-  exports: [
-    JwtModule,
-  ],
+  providers: [AuthGuard, RolesGuard],
+  exports: [JwtModule],
 })
 export class AuthModule {}

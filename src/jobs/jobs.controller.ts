@@ -22,9 +22,10 @@ export class JobsController {
   constructor(private readonly jobsService: JobsService) {}
 
   // Only Admin and HR can create job
+  @UseGuards(AuthGuard)
+  @SetMetadata('roles', [Role.ADMIN, Role.HR])
+  @UseGuards(RolesGuard)
   @Post('create')
-  @UseGuards(AuthGuard, RolesGuard)
-  @SetMetadata('role', [Role.ADMIN, Role.HR])
   async createJob(@Body() dto: CreateJobDto, @Request() req) {
     const userId = req.user.user; // comes from JWT payload
     return this.jobsService.create(dto, userId);
@@ -43,17 +44,19 @@ export class JobsController {
   }
 
   // only admin and hr can edit the job using id
+@UseGuards(AuthGuard)
+  @SetMetadata('roles', [Role.ADMIN, Role.HR])
+  @UseGuards(RolesGuard)
   @Patch(':id')
-  @UseGuards(AuthGuard, RolesGuard)
-  @SetMetadata('role', [Role.ADMIN, Role.HR])
   update(@Param('id') id: string, @Body() updateJobDto: UpdateJobDto) {
      return this.jobsService.update(Number(id), updateJobDto);
   }
 
   // only admin and hr delete job
+  @UseGuards(AuthGuard)
+  @SetMetadata('roles', [Role.ADMIN, Role.HR])
+  @UseGuards(RolesGuard)
   @Delete(':id')
-  @UseGuards(AuthGuard, RolesGuard)
-  @SetMetadata('role', [Role.ADMIN, Role.HR])
   async deleteJob(@Param('id') id: string) {
     return this.jobsService.jobDeleteById(Number(id));
   }

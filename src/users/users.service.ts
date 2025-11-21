@@ -4,12 +4,10 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { Role } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 import { UsersCreateDto } from './dto/users-create.dto';
 import { LoginDto } from './dto/login.dto';
 import { UsersUpdateDto } from './dto/users-update.dto';
-import { userInfo } from 'os';
 var jwt = require('jsonwebtoken');
 var md5 = require('md5');
 
@@ -20,7 +18,7 @@ export class UsersService {
   // create user
   async createUser(createDto: UsersCreateDto) {
     let passwordHash = md5(createDto.password);
-    console.log(passwordHash);
+    // console.log(passwordHash);
 
     let existingUser = await this.prisma.user.findUnique({
       where: {
@@ -40,14 +38,14 @@ export class UsersService {
           role: createDto.role,
         },
       });
+      return {
+        massage: 'User Created',
+        statusCode: 200,
+      };
     } catch (error) {
       console.log('error', error);
       throw new HttpException('Forbidden', HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    return {
-      massage: 'User Created',
-      statusCode: 200,
-    };
   }
 
   // create user login
@@ -65,17 +63,29 @@ export class UsersService {
     if (!getUserByEmail) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-  console.log("hashpas",getUserByEmail.password );
+    // console.log('hashpas', getUserByEmail.password);
     if (getUserByEmail.password != hashpassword) {
       throw new HttpException('Password not match', HttpStatus.BAD_REQUEST);
     }
 
+    // generate token using user login
     try {
       var token = jwt.sign(
         { user: getUserByEmail.id, role: getUserByEmail.role },
         process.env.jwtPrivateKey,
       );
       jwtToken = token;
+
+      return {
+        massage: 'User login success',
+        statusCode: 200,
+        data: {
+          token: jwtToken,
+          name: getUserByEmail.name,
+          email: getUserByEmail.email,
+          role: getUserByEmail.role,
+        },
+      };
     } catch (error) {
       console.log('error', error);
       throw new HttpException(
@@ -83,17 +93,6 @@ export class UsersService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-
-    return {
-      massage: 'User login success',
-      statusCode: 200,
-      data: {
-        token: jwtToken,
-        name: getUserByEmail.name,
-        email: getUserByEmail.email,
-        role: getUserByEmail.role,
-      },
-    };
   }
 
   //   get user
@@ -162,7 +161,7 @@ export class UsersService {
   async updateById(id: number, usersUpdateDto: UsersUpdateDto) {
     try {
       let updateData = { ...usersUpdateDto };
-      
+
       const user = await this.prisma.user.update({
         where: { id },
         data: updateData,

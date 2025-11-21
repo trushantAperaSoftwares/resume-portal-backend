@@ -7,6 +7,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 
+
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(
@@ -17,7 +18,7 @@ export class RolesGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
 
     const requiredRoles = this.reflector.get<string[]>(
-      'role',
+      'roles',
       context.getHandler(),
     );
 

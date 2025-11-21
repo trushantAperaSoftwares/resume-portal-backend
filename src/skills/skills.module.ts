@@ -9,4 +9,8 @@ import { AuthModule } from 'src/auth/auth.module';
   controllers: [SkillsController],
   providers: [SkillsService, PrismaService],
 })
+<<<<<<< HEAD
 export class SkillsModule {}
+=======
+export class SkillsModule {}
+>>>>>>> 4e2483f (guards update)

@@ -7,8 +7,7 @@ import {
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
 import { PrismaService } from 'src/prisma.service';
-import { error } from 'console';
-import { throwError } from 'rxjs';
+
 
 @Injectable()
 export class JobsService {
@@ -29,6 +28,7 @@ export class JobsService {
         statusCode: 201,
         data: job,
       };
+      
     } catch (error) {
       console.log(error, 'job creation failed');
       throw new HttpException('job creation failed', HttpStatus.BAD_REQUEST);

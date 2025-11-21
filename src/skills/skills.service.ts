@@ -69,4 +69,8 @@ export class SkillsService {
 
     return this.prisma.skill.delete({ where: { id } });
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 4e2483f (guards update)
